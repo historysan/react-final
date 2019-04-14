@@ -18,14 +18,21 @@ export const GET_POST = gql`
       title
       description
       author
-      comment {
-        _id
-        text
-      }
       created
     }
   }
 `
+
+// export const GET_POST_COMMENT = gql`
+//   query($_id: ID) {
+//     getPostComment(_id: ID) {
+//       _id
+//       text
+//       postId
+//       created
+//     }
+//   }
+// `
 
 export const SEARCH_POST = gql`
   query($searchText: String) {

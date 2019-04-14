@@ -4,7 +4,6 @@ exports.typeDefs = `
     title: String
     description: String
     author: String
-    comment: [Comment]
     created: String
     modified: String
   }

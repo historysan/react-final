@@ -20,12 +20,16 @@ exports.resolvers = {
     getPost: async (root, { _id }, { Post }) => {
       const post = await Post.findOne({
         _id
-      }).populate({
-        path: 'comment',
-        model: 'Comment'
       })
       return post
     },
+
+    // getPostComment: async (root, { _id, postId }, { Comment }) => {
+    //   const postComment = await Comment.find({
+    //     _id
+    //   })
+    //   return postComment
+    // },
 
     searchPost: async (root, { searchText }, { Post }) => {
       if (searchText) {
@@ -68,13 +72,9 @@ exports.resolvers = {
       return newPost
     },
 
-    addComment: async (root, { _id, text },  { Comment, Post }) => {
-      const post = await Post.findOneAndUpdate(
-        { _id },
-        { $addToSet: { comment: text } }
-      )
+    addComment: async (root, { text },  { Comment }) => {
       const newComment = await new Comment({
-        text
+        text,
       }).save()
       return newComment
     },
