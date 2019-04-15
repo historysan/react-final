@@ -21,6 +21,7 @@ exports.typeDefs = `
   type Comment {
     _id: ID
     text: String
+    postId: ID
     created: String
   }
 
@@ -33,6 +34,8 @@ exports.typeDefs = `
 
     getPost(_id: ID!): Post
 
+    getPostComment(postId: ID): [Comment]
+
     searchPost(searchText: String): [Post]
 
     getCurrentUser: User
@@ -43,7 +46,7 @@ exports.typeDefs = `
   type Mutation {
     addPost(title: String!, description: String!, author: String): Post
 
-    addComment(_id: ID, text: String): Comment
+    addComment(_id: ID, text: String, postId: ID): Comment
 
     updateUserPost(_id: ID!, title: String!, description: String!): Post
 

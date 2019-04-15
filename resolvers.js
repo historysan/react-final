@@ -24,12 +24,12 @@ exports.resolvers = {
       return post
     },
 
-    // getPostComment: async (root, { _id, postId }, { Comment }) => {
-    //   const postComment = await Comment.find({
-    //     _id
-    //   })
-    //   return postComment
-    // },
+    getPostComment: async (root, { postId }, { Comment }) => {
+      const postComment = await Comment.find({
+        postId
+      })
+      return postComment
+    },
 
     searchPost: async (root, { searchText }, { Post }) => {
       if (searchText) {
@@ -72,9 +72,10 @@ exports.resolvers = {
       return newPost
     },
 
-    addComment: async (root, { text },  { Comment }) => {
+    addComment: async (root, { text, postId },  { Comment }) => {
       const newComment = await new Comment({
         text,
+        postId
       }).save()
       return newComment
     },

@@ -23,16 +23,16 @@ export const GET_POST = gql`
   }
 `
 
-// export const GET_POST_COMMENT = gql`
-//   query($_id: ID) {
-//     getPostComment(_id: ID) {
-//       _id
-//       text
-//       postId
-//       created
-//     }
-//   }
-// `
+export const GET_POST_COMMENT = gql`
+  query($postId: ID) {
+    getPostComment(postId: $postId) {
+      _id
+      text
+      postId
+      created
+    }
+  }
+`
 
 export const SEARCH_POST = gql`
   query($searchText: String) {
@@ -56,11 +56,12 @@ export const ADD_POST = gql`
 `
 
 export const ADD_COMMENT = gql`
-  mutation($text: String) {
-    addComment(text: $text) {
+  mutation($text: String, $postId: ID) {
+    addComment(text: $text, postId: $postId) {
       _id
       text
       created
+      postId
     }
   }
 `
