@@ -1,122 +1,129 @@
-import { gql } from 'apollo-boost'
+import { gql } from "apollo-boost";
 
-export const GET_ALL_POST = gql`
+import { recipeFragments } from "./fragments";
+
+/* Recipes Queries */
+export const GET_ALL_RECIPES = gql`
   query {
-    getAllPost {
+    getAllRecipes {
       _id
-      title
-      description
-      created
+      imageUrl
+      name
+      category
     }
   }
-`
+`;
 
-export const GET_POST = gql`
+export const GET_RECIPE = gql`
   query($_id: ID!) {
-    getPost(_id: $_id) {
-      _id
-      title
-      description
-      author
-      created
+    getRecipe(_id: $_id) {
+      ...CompleteRecipe
     }
   }
-`
+  ${recipeFragments.recipe}
+`;
 
-export const GET_POST_COMMENT = gql`
-  query($postId: ID) {
-    getPostComment(postId: $postId) {
+export const SEARCH_RECIPES = gql`
+  query($searchTerm: String) {
+    searchRecipes(searchTerm: $searchTerm) {
       _id
-      text
-      postId
-      created
+      name
+      likes
     }
   }
-`
+`;
 
-export const SEARCH_POST = gql`
-  query($searchText: String) {
-    searchPost(searchText: $searchText) {
-      _id
-      title
-      description
+/* Recipes Mutations */
+
+export const ADD_RECIPE = gql`
+  mutation(
+    $name: String!
+    $imageUrl: String!
+    $description: String!
+    $category: String!
+    $instructions: String!
+    $username: String
+  ) {
+    addRecipe(
+      name: $name
+      imageUrl: $imageUrl
+      description: $description
+      category: $category
+      instructions: $instructions
+      username: $username
+    ) {
+      ...CompleteRecipe
     }
   }
-`
+  ${recipeFragments.recipe}
+`;
 
-export const ADD_POST = gql`
-  mutation($title: String!, $description: String!, $author: String) {
-    addPost(title: $title, description: $description, author: $author) {
-      _id
-      title
-      description
-      created
+export const LIKE_RECIPE = gql`
+  mutation($_id: ID!, $username: String!) {
+    likeRecipe(_id: $_id, username: $username) {
+      ...LikeRecipe
     }
   }
-`
+  ${recipeFragments.like}
+`;
 
-export const ADD_COMMENT = gql`
-  mutation($text: String, $postId: ID) {
-    addComment(text: $text, postId: $postId) {
-      _id
-      text
-      created
-      postId
+export const UNLIKE_RECIPE = gql`
+  mutation($_id: ID!, $username: String!) {
+    unlikeRecipe(_id: $_id, username: $username) {
+      ...LikeRecipe
     }
   }
-`
+  ${recipeFragments.like}
+`;
 
-export const UPDATE_USER_POST = gql`
-  mutation($_id: ID!, $title: String!, $description: String!) {
-    updateUserPost(_id: $_id, title: $title, description: $description) {
-      _id
-      title
-      description
-    }
-  }
-`
-
-export const DELETE_USER_POST = gql`
+export const DELETE_USER_RECIPE = gql`
   mutation($_id: ID!) {
-    deleteUserPost(_id: $_id) {
+    deleteUserRecipe(_id: $_id) {
       _id
     }
   }
-`
+`;
+
+/* User Queries */
 
 export const GET_CURRENT_USER = gql`
   query {
     getCurrentUser {
-      firstName
-      lastName
+      username
+      joinDate
       email
-      created
+      favorites {
+        _id
+        name
+      }
     }
   }
-`
+`;
 
-export const GET_USER_POST = gql`
-  query($author: String!) {
-    getUserPost(author: $author) {
+export const GET_USER_RECIPES = gql`
+  query($username: String!) {
+    getUserRecipes(username: $username) {
       _id
-      title
-      description
+      name
+      likes
     }
   }
-`
+`;
+
+/* User Mutations */
 
 export const SIGNIN_USER = gql`
-  mutation($email: String!, $password: String!) {
-    signinUser(email: $email, password: $password) {
+  mutation($username: String!, $password: String!) {
+    signinUser(username: $username, password: $password) {
       token
     }
   }
-`
+`;
 
 export const SIGNUP_USER = gql`
-  mutation($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
-    signupUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
+  mutation($username: String!, $email: String!, $password: String!) {
+    signupUser(username: $username, email: $email, password: $password) {
       token
     }
   }
-`
+`;

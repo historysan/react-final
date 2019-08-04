@@ -1,51 +1,62 @@
-import React, { Fragment } from 'react'
-import { NavLink } from 'react-router-dom'
-import SignOut from './Auth/SignOut';
+import React, { Fragment } from "react";
+import { NavLink } from "react-router-dom";
+
+import Signout from "../components/Auth/Signout";
 
 const Navbar = ({ session }) => (
   <nav>
-    {session && session.getCurrentUser ? <NavBarAuth session={session} /> : <NavbarUnAuth />}
+    {session && session.getCurrentUser ? (
+      <NavbarAuth session={session} />
+    ) : (
+      <NavbarUnAuth />
+    )}
   </nav>
-)
+);
 
-const NavBarAuth = ({ session }) => (
+const NavbarAuth = ({ session }) => (
   <Fragment>
     <ul>
       <li>
-        <NavLink to="/">Home</NavLink>
+        <NavLink to="/" exact>
+          Home
+        </NavLink>
       </li>
       <li>
-        <NavLink to="search">Search</NavLink>
+        <NavLink to="/search">Search</NavLink>
       </li>
       <li>
-        <NavLink to="post/add">Add Post</NavLink>
+        <NavLink to="/recipe/add">Add Recipe</NavLink>
       </li>
       <li>
         <NavLink to="/profile">Profile</NavLink>
       </li>
       <li>
-        <SignOut />
+        <Signout />
       </li>
     </ul>
-    <h4>Welcome, <strong>{session.getCurrentUser.firstName}</strong></h4>
+    <h4>
+      Welcome, <strong>{session.getCurrentUser.username}</strong>
+    </h4>
   </Fragment>
-)
+);
 
 const NavbarUnAuth = () => (
   <ul>
     <li>
-      <NavLink to="/" exact>Home</NavLink>
+      <NavLink to="/" exact>
+        Home
+      </NavLink>
     </li>
     <li>
       <NavLink to="/search">Search</NavLink>
     </li>
     <li>
-      <NavLink to="/sign-in">Sign In</NavLink>
+      <NavLink to="/signin">Signin</NavLink>
     </li>
     <li>
-      <NavLink to="/sign-up">Sign Up</NavLink>
+      <NavLink to="/signup">Signup</NavLink>
     </li>
   </ul>
-)
+);
 
-export default Navbar
+export default Navbar;

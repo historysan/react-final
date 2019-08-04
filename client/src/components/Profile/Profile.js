@@ -1,13 +1,14 @@
-import React from 'react'
-import UserInfo from './UserInfo'
-import UserPost from './UserPost'
-import withAuth from '../withAuth'
+import React from "react";
+
+import UserInfo from "./UserInfo";
+import UserRecipes from "./UserRecipes";
+import withAuth from "../withAuth";
 
 const Profile = ({ session }) => (
   <div className="App">
     <UserInfo session={session} />
-    <UserPost author={session.getCurrentUser.firstName} />
+    <UserRecipes username={session.getCurrentUser.username} />
   </div>
-)
+);
 
-export default withAuth(session => session && session.getCurrentUser)(Profile)
+export default withAuth(session => session && session.getCurrentUser)(Profile);
