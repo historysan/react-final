@@ -1,64 +1,46 @@
 exports.typeDefs = `
-  type Post {
-    _id: ID
-    title: String
-    description: String
-    author: String
-    created: String
-    modified: String
-  }
 
-  type User {
-    _id: ID
-    firstName: String!
-    lastName: String!
-    email: String! @unique
-    password: String!
-    created: String
-    modified: String
-  }
+type Recipe {
+  _id: ID
+  name: String!
+  imageUrl: String!
+  category: String!
+  description: String!
+  instructions: String!
+  createdDate: String
+  likes: Int
+  username: String
+}
 
-  type Comment {
-    _id: ID
-    text: String
-    postId: ID
-    created: String
-  }
+type User {
+  _id: ID
+  username: String! @unique
+  password: String!
+  email: String!
+  joinDate: String
+  favorites: [Recipe]
+}
 
-  type Token {
-    token: String!
-  }
+type Query {
+  getAllRecipes: [Recipe]
+  getRecipe(_id: ID!): Recipe
+  searchRecipes(searchTerm: String): [Recipe]
 
-  type Query {
-    getAllPost: [Post]
+  getCurrentUser: User
+  getUserRecipes(username: String!): [Recipe]
+}
 
-    getPost(_id: ID!): Post
+type Token {
+  token: String!
+}
 
-    getPostComment(postId: ID): [Comment]
+type Mutation {
+  addRecipe(name: String!, imageUrl: String!, description: String!, category: String!, instructions: String!, username: String): Recipe
+  deleteUserRecipe(_id: ID): Recipe
+  likeRecipe(_id: ID!, username: String!): Recipe
+  unlikeRecipe(_id: ID!, username: String!): Recipe
+  signinUser(username: String!, password: String!): Token
+  signupUser(username: String!, email: String!, password: String!): Token
+}
 
-    searchPost(searchText: String): [Post]
-
-    getCurrentUser: User
-
-    getUserPost(author: String!): [Post]
-  }
-
-  type Mutation {
-    addPost(title: String!, description: String!, author: String): Post
-
-    addComment(_id: ID, text: String, postId: ID): Comment
-
-    updateUserPost(_id: ID!, title: String!, description: String!): Post
-
-    deleteUserPost(_id: ID): Post
-
-    signinUser(email: String!, password: String!): Token
-
-    signupUser(
-      firstName: String!,
-      lastName: String!,
-      email: String!,
-      password: String!,
-    ): Token
-  }
-`
+`;

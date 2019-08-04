@@ -1,123 +1,125 @@
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const createToken = (user, secret, expiresIn) => {
-  const { firstName, lastName, email } = user
-  return jwt.sign({
-    firstName,
-    lastName,
-    email
-  }, secret, { expiresIn })
-}
+  const { username, email } = user;
+  return jwt.sign({ username, email }, secret, { expiresIn });
+};
 
 exports.resolvers = {
   Query: {
-    getAllPost: async (root, args, { Post }) => {
-      const allPost = await Post.find().sort({ created: 'desc' })
-      return allPost
+    getAllRecipes: async (root, args, { Recipe }) => {
+      const allRecipes = await Recipe.find().sort({ createdDate: "desc" });
+      return allRecipes;
     },
-
-    getPost: async (root, { _id }, { Post }) => {
-      const post = await Post.findOne({
-        _id
-      })
-      return post
+    getRecipe: async (root, { _id }, { Recipe }) => {
+      const recipe = await Recipe.findOne({ _id });
+      return recipe;
     },
-
-    getPostComment: async (root, { postId }, { Comment }) => {
-      const postComment = await Comment.find({
-        postId
-      })
-      return postComment
-    },
-
-    searchPost: async (root, { searchText }, { Post }) => {
-      if (searchText) {
-        const searchResult = await Post.find({
-          $text: { $search: searchText }
-        }, {
-          score: { $meta: 'textScore' }
-        }).sort({
-          score: { $meta: 'textScore' }
-        })
-        return searchResult
+    searchRecipes: async (root, { searchTerm }, { Recipe }) => {
+      if (searchTerm) {
+        const searchResults = await Recipe.find(
+          {
+            $text: { $search: searchTerm }
+          },
+          {
+            score: { $meta: "textScore" }
+          }
+        ).sort({
+          score: { $meta: "textScore" }
+        });
+        return searchResults;
       } else {
-        const post = await Post.find().sort({ created: 'desc' })
-        return post
+        const recipes = await Recipe.find().sort({
+          likes: "desc",
+          createdDate: "desc"
+        });
+        return recipes;
       }
     },
-
-    getUserPost: async (root, { author }, { Post }) => {
-      const userPost = await Post.find({ author }).sort({ created: 'desc' })
-      return userPost
+    getUserRecipes: async (root, { username }, { Recipe }) => {
+      const userRecipes = await Recipe.find({ username }).sort({
+        createdDate: "desc"
+      });
+      return userRecipes;
     },
-
     getCurrentUser: async (root, args, { currentUser, User }) => {
       if (!currentUser) {
-        return null
+        return null;
       }
       const user = await User.findOne({
-        email: currentUser.email
-      })
-      return user
+        username: currentUser.username
+      }).populate({
+        path: "favorites",
+        model: "Recipe"
+      });
+      return user;
     }
   },
   Mutation: {
-    addPost: async (root, { title, description, author }, { Post }) => {
-      const newPost = await new Post({
-        title,
+    addRecipe: async (
+      root,
+      { name, imageUrl, description, category, instructions, username },
+      { Recipe }
+    ) => {
+      const newRecipe = await new Recipe({
+        name,
+        imageUrl,
         description,
-        author
-      }).save()
-      return newPost
+        category,
+        instructions,
+        username
+      }).save();
+      return newRecipe;
     },
-
-    addComment: async (root, { text, postId },  { Comment }) => {
-      const newComment = await new Comment({
-        text,
-        postId
-      }).save()
-      return newComment
-    },
-
-    updateUserPost: async (root, { _id, title, description }, { Post }) => {
-      const updatedPost = await Post.findOneAndUpdate(
+    likeRecipe: async (root, { _id, username }, { Recipe, User }) => {
+      const recipe = await Recipe.findOneAndUpdate(
         { _id },
-        { $set: { title, description } },
-        { new: true }
-      )
-      return updatedPost
+        { $inc: { likes: 1 } }
+      );
+      const user = await User.findOneAndUpdate(
+        { username },
+        { $addToSet: { favorites: _id } }
+      );
+      return recipe;
     },
-
-    deleteUserPost: async (root, { _id }, { Post }) => {
-      const post = await Post.findOneAndRemove({ _id })
-      return post
+    unlikeRecipe: async (root, { _id, username }, { Recipe, User }) => {
+      const recipe = await Recipe.findOneAndUpdate(
+        { _id },
+        { $inc: { likes: -1 } }
+      );
+      const user = await User.findOneAndUpdate(
+        { username },
+        { $pull: { favorites: _id } }
+      );
+      return recipe;
     },
-
-    signinUser: async (root, { email, password }, { User }) => {
-      const user = await User.findOne({ email })
+    deleteUserRecipe: async (root, { _id }, { Recipe }) => {
+      const recipe = await Recipe.findOneAndRemove({ _id });
+      return recipe;
+    },
+    signinUser: async (root, { username, password }, { User }) => {
+      const user = await User.findOne({ username });
       if (!user) {
-        throw new Error('User not found')
+        throw new Error("User not found");
       }
-      const isValidPassword = await bcrypt.compare(password, user.password)
+      const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
-        throw new Error('Invalid Password')
+        throw new Error("Invalid password");
       }
-      return { token: createToken(user, process.env.SECRET, '1hr') }
+      return { token: createToken(user, process.env.SECRET, "1hr") };
     },
-
-    signupUser: async (root, { firstName, lastName, email, password }, { User }) => {
-      const user = await User.findOne({ email })
+    signupUser: async (root, { username, email, password }, { User }) => {
+      const user = await User.findOne({ username });
       if (user) {
-        throw new Error('User already exists with this email')
+        throw new Error("User already exists");
       }
       const newUser = await new User({
-        firstName,
-        lastName,
+        username,
         email,
         password
-      }).save()
-      return { token: createToken(newUser, process.env.SECRET, '1hr') }
+      }).save();
+      return { token: createToken(newUser, process.env.SECRET, "1hr") };
     }
   }
-}
+};
